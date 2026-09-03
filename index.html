@@ -168,7 +168,7 @@
   <div class="logo">
     <div class="logo-icon">⚖️</div>
     <div>
-      <div class="logo-text">Lucralize · Jurídico</div>
+      <div class="logo-text">Perdomo Advocacia</div>
       <div class="logo-sub">Funil Jurídico</div>
     </div>
   </div>
@@ -425,6 +425,19 @@
 <script>
 const PROXY = 'https://dashboard-proxy-production-ebff.up.railway.app';
 const FUNIL_JUR = 'Funil Jurídico';
+// Etapas oficiais do Funil Jurídico (via GET /funnels do Agendor) — usado pra garantir
+// que TODAS apareçam no Pipeline por etapa, mesmo as que estão com 0 negócio agora.
+const ETAPAS_JUR_COMPLETAS = [
+  { name: 'Importação', sequence: 1 },
+  { name: '1ª Tentativa de Contato', sequence: 2 },
+  { name: '2ª Tentativa de Contato', sequence: 3 },
+  { name: '3ª Tentativa de Contato', sequence: 4 },
+  { name: 'Contato Retornado', sequence: 5 },
+  { name: 'Reunião Agendada', sequence: 6 },
+  { name: 'Fechamento', sequence: 7 },
+  { name: 'Perdido (Sem interesse)', sequence: 8 },
+  { name: 'Perdido (Sem contato)', sequence: 9 }
+];
 const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const COLORS_JUR = ['#4B3FA0','#6B5EC7','#8B7FDE','#A89FEA','#C5BFEE','#2e7d8b','#1a7a4a','#a05c00','#c0392b','#8b3a8b','#2c6fad','#5c7a2e','#6b3a7d','#b32d2d','#d35400'];
 
@@ -494,15 +507,16 @@ function renderFunilEtapasVertical() {
   if (tag) tag.textContent = FUNIL_JUR;
 
   const stageMap = {};
-  // Pega todas as etapas que aparecem em qualquer negócio do período (ganho/perdido/andamento),
-  // não só as que têm negócio em andamento agora — assim etapa com 0 no momento ainda aparece.
+  // Começa já com as etapas oficiais completas (zeradas)
+  ETAPAS_JUR_COMPLETAS.forEach(e => { stageMap[e.name] = { name: e.name, sequence: e.sequence, count: 0 }; });
+  // Soma o que aparece nos dados reais — se vier alguma etapa nova que a lista fixa não previa, adiciona também
   filteredDeals.forEach(d => {
     const s = d.dealStage;
-    if (s && s.id && !stageMap[s.id]) stageMap[s.id] = { id: s.id, name: s.name, sequence: s.sequence || 0, count: 0 };
+    if (s && s.name && !stageMap[s.name]) stageMap[s.name] = { name: s.name, sequence: (s.sequence || 0) + 0.5, count: 0 };
   });
   filteredDeals.filter(d => d.dealStatus?.id === 1).forEach(d => {
     const s = d.dealStage;
-    if (s && s.id && stageMap[s.id]) stageMap[s.id].count++;
+    if (s && s.name && stageMap[s.name]) stageMap[s.name].count++;
   });
 
   const etapas = Object.values(stageMap).sort((a, b) => a.sequence - b.sequence);
