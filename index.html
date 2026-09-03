@@ -428,15 +428,17 @@ const FUNIL_JUR = 'Funil Jurídico';
 // Etapas oficiais do Funil Jurídico (via GET /funnels do Agendor) — usado pra garantir
 // que TODAS apareçam no Pipeline por etapa, mesmo as que estão com 0 negócio agora.
 const ETAPAS_JUR_COMPLETAS = [
-  { name: 'Importação', sequence: 1 },
-  { name: '1ª Tentativa de Contato', sequence: 2 },
-  { name: '2ª Tentativa de Contato', sequence: 3 },
-  { name: '3ª Tentativa de Contato', sequence: 4 },
-  { name: 'Contato Retornado', sequence: 5 },
+  { name: 'Lead (Importação)', sequence: 1 },
+  { name: 'Agendar', sequence: 2 },
+  { name: 'Não Agendar', sequence: 3 },
+  { name: '1ª Tentativa Contato', sequence: 4 },
+  { name: '2ª Tentativa Contato', sequence: 5 },
   { name: 'Reunião Agendada', sequence: 6 },
-  { name: 'Fechamento', sequence: 7 },
-  { name: 'Perdido (Sem interesse)', sequence: 8 },
-  { name: 'Perdido (Sem contato)', sequence: 9 }
+  { name: 'Envio de proposta', sequence: 7 },
+  { name: 'Follow-up', sequence: 8 },
+  { name: 'Fechamento', sequence: 9 },
+  { name: 'Perdido', sequence: 10 },
+  { name: 'Perdido - sem contato', sequence: 11 }
 ];
 const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const COLORS_JUR = ['#4B3FA0','#6B5EC7','#8B7FDE','#A89FEA','#C5BFEE','#2e7d8b','#1a7a4a','#a05c00','#c0392b','#8b3a8b','#2c6fad','#5c7a2e','#6b3a7d','#b32d2d','#d35400'];
@@ -536,8 +538,8 @@ function renderFunilEtapasVertical() {
     html += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:90px;padding:0 4px;">'
       + '<span style="font-size:11px;font-weight:500;color:var(--jur);text-align:center;margin-bottom:4px;padding:0 4px;">' + stage.name + '</span>'
       + '<div style="display:flex;align-items:baseline;gap:5px;margin-bottom:6px;">'
-      +   '<span style="font-size:14px;font-weight:600;color:white;">' + stage.count + '</span>'
-      +   '<span style="font-size:10px;color:rgba(255,255,255,0.35);">' + pctStage + '%</span>'
+      +   '<span style="font-size:14px;font-weight:600;color:var(--text);">' + stage.count + '</span>'
+      +   '<span style="font-size:10px;color:var(--muted);">' + pctStage + '%</span>'
       + '</div>'
       + '<div style="height:' + barH + 'px;width:48px;background:#4B3FA0;border-radius:4px 4px 0 0;"></div>'
       + '</div>';
@@ -545,20 +547,20 @@ function renderFunilEtapasVertical() {
 
   const barHGanhos = Math.max(12, Math.round((ganhos / maxCount) * 100));
   const pctGanhos = Math.round((ganhos / totalDeals) * 100);
-  html += '<div style="width:1px;background:rgba(255,255,255,0.1);align-self:stretch;margin:0 8px;flex-shrink:0;"></div>'
+  html += '<div style="width:1px;background:var(--border);align-self:stretch;margin:0 8px;flex-shrink:0;"></div>'
     + '<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;padding:0 4px;">'
-    +   '<span style="font-size:11px;font-weight:500;color:#5DCAA5;text-align:center;margin-bottom:4px;">Ganhos</span>'
+    +   '<span style="font-size:11px;font-weight:500;color:#1e7e4a;text-align:center;margin-bottom:4px;">Ganhos</span>'
     +   '<div style="display:flex;align-items:baseline;gap:5px;margin-bottom:6px;">'
-    +     '<span style="font-size:14px;font-weight:600;color:#5DCAA5;">' + ganhos + '</span>'
-    +     '<span style="font-size:10px;color:rgba(92,202,165,0.5);">' + pctGanhos + '%</span>'
+    +     '<span style="font-size:14px;font-weight:600;color:#1e7e4a;">' + ganhos + '</span>'
+    +     '<span style="font-size:10px;color:var(--muted);">' + pctGanhos + '%</span>'
     +   '</div>'
     +   '<div style="height:' + barHGanhos + 'px;width:48px;background:#1e7e4a;border-radius:4px 4px 0 0;"></div>'
     + '</div>'
-    + '<div style="width:1px;background:rgba(255,255,255,0.1);align-self:stretch;margin:0 8px;flex-shrink:0;"></div>'
+    + '<div style="width:1px;background:var(--border);align-self:stretch;margin:0 8px;flex-shrink:0;"></div>'
     + '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:0 4px;">'
-    +   '<span style="font-size:10px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Total gerados</span>'
-    +   '<span style="font-size:26px;font-weight:600;color:white;line-height:1;">' + totalDeals.toLocaleString('pt-BR') + '</span>'
-    +   '<span style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;">no período</span>'
+    +   '<span style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Total gerados</span>'
+    +   '<span style="font-size:26px;font-weight:600;color:var(--text);line-height:1;">' + totalDeals.toLocaleString('pt-BR') + '</span>'
+    +   '<span style="font-size:10px;color:var(--muted);margin-top:3px;">no período</span>'
     + '</div>';
 
   body.innerHTML = html;
